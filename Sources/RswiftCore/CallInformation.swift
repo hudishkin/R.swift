@@ -32,6 +32,7 @@ public struct CallInformation {
   let sourceRootURL: URL
   let sdkRootURL: URL
   let platformURL: URL
+  let forceUnwrapImage: Bool
 
   public init(
     outputURL: URL,
@@ -54,7 +55,8 @@ public struct CallInformation {
     developerDirURL: URL,
     sourceRootURL: URL,
     sdkRootURL: URL,
-    platformURL: URL
+    platformURL: URL,
+    forceUnwrapImage: Bool
   ) {
     self.outputURL = outputURL
     self.uiTestOutputURL = uiTestOutputURL
@@ -77,6 +79,7 @@ public struct CallInformation {
     self.sourceRootURL = sourceRootURL
     self.sdkRootURL = sdkRootURL
     self.platformURL = platformURL
+    self.forceUnwrapImage = forceUnwrapImage
   }
 
 

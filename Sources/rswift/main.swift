@@ -112,6 +112,7 @@ struct CommanderOptions {
   static let accessLevel = Option("accessLevel", default: AccessLevel.internalLevel, description: "The access level [public|internal] to use for the generated R-file")
   static let rswiftIgnore = Option("rswiftignore", default: ".rswiftignore", description: "Path to pattern file that describes files that should be ignored")
   static let hostingBundle: Option<String?> = Option("hostingBundle", default: nil, description: "Override bundle from which resources are loaded")
+  static let forceUnwrapImage = Flag("forceUnwrapImage", default: false, description: "Add if want force unwrap UIImage.")
 
   // Project specific - Environment variable overrides
   static let xcodeproj: Option<String?> = Option("xcodeproj", default: nil, description: "Defaults to environment variable \(EnvironmentKeys.xcodeproj)")
@@ -187,6 +188,7 @@ let generate = command(
   CommanderOptions.accessLevel,
   CommanderOptions.rswiftIgnore,
   CommanderOptions.hostingBundle,
+  CommanderOptions.forceUnwrapImage,
 
   CommanderOptions.xcodeproj,
   CommanderOptions.target,
@@ -209,6 +211,7 @@ let generate = command(
   accessLevel,
   rswiftIgnore,
   hostingBundle,
+  forceUnwrapImageOption,
 
   xcodeprojOption,
   targetOption,
@@ -293,7 +296,8 @@ let generate = command(
     developerDirURL: URL(fileURLWithPath: developerDirPath),
     sourceRootURL: URL(fileURLWithPath: sourceRootPath),
     sdkRootURL: URL(fileURLWithPath: sdkRootPath),
-    platformURL: URL(fileURLWithPath: platformPath)
+    platformURL: URL(fileURLWithPath: platformPath),
+    forceUnwrapImage: forceUnwrapImageOption
   )
 
   try RswiftCore(callInformation).run()

@@ -52,7 +52,7 @@ public struct RswiftCore {
 
       var structGenerators: [StructGenerator] = []
       if callInformation.generators.contains(.image) {
-        structGenerators.append(ImageStructGenerator(assetFolders: resources.assetFolders, images: resources.images))
+        structGenerators.append(ImageStructGenerator(assetFolders: resources.assetFolders, images: resources.images, forceUnwrap: callInformation.forceUnwrapImage))
       }
       if callInformation.generators.contains(.color) {
         structGenerators.append(ColorStructGenerator(assetFolders: resources.assetFolders))
