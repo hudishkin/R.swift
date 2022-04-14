@@ -12,10 +12,12 @@ import Foundation
 struct ImageStructGenerator: ExternalOnlyStructGenerator {
   private let assetFolders: [AssetFolder]
   private let images: [Image]
+  private let forceUnwrap: Bool
 
-  init(assetFolders: [AssetFolder], images: [Image]) {
+  init(assetFolders: [AssetFolder], images: [Image], forceUnwrap: Bool) {
     self.assetFolders = assetFolders
     self.images = images
+    self.forceUnwrap = forceUnwrap
   }
 
   func generatedStruct(at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier) -> Struct {
@@ -42,7 +44,7 @@ struct ImageStructGenerator: ExternalOnlyStructGenerator {
     assetSubfolders.printWarningsForDuplicates()
 
     let structs = assetSubfolders.folders
-      .map { $0.generatedImageStruct(at: externalAccessLevel, prefix: qualifiedName) }
+      .map { $0.generatedImageStruct(at: externalAccessLevel, prefix: qualifiedName, forceUnwrap: forceUnwrap) }
       .filter { !$0.isEmpty }
 
     let imageLets = groupedFunctions
@@ -66,14 +68,14 @@ struct ImageStructGenerator: ExternalOnlyStructGenerator {
       implements: [],
       typealiasses: [],
       properties: imageLets,
-      functions: groupedFunctions.uniques.map { imageFunction(for: $0, at: externalAccessLevel, prefix: qualifiedName) },
+      functions: groupedFunctions.uniques.map { imageFunction(for: $0, at: externalAccessLevel, prefix: qualifiedName, forceUnwrap: forceUnwrap) },
       structs: structs,
       classes: [],
       os: []
     )
   }
 
-  private func imageFunction(for name: String, at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier) -> Function {
+    private func imageFunction(for name: String, at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier, forceUnwrap: Bool) -> Function {
     let structName = SwiftIdentifier(name: name)
     let qualifiedName = prefix + structName
 
@@ -93,15 +95,15 @@ struct ImageStructGenerator: ExternalOnlyStructGenerator {
         )
       ],
       doesThrow: false,
-      returnType: Type._UIImage.asOptional(),
-      body: "return UIKit.UIImage(resource: \(qualifiedName), compatibleWith: traitCollection)",
+      returnType: forceUnwrap ? Type._UIImage.asNonOptional() : Type._UIImage.asOptional(),
+      body: "return UIKit.UIImage(resource: \(qualifiedName), compatibleWith: traitCollection)\(forceUnwrap ? "!" : "")",
       os: ["iOS", "tvOS"]
     )
   }
 }
 
 private extension NamespacedAssetSubfolder {
-  func generatedImageStruct(at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier) -> Struct {
+  func generatedImageStruct(at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier, forceUnwrap: Bool) -> Struct {
     let allFunctions = imageAssets
     let groupedFunctions = allFunctions.grouped(bySwiftIdentifier: { $0 })
 
@@ -118,7 +120,7 @@ private extension NamespacedAssetSubfolder {
     let structName = SwiftIdentifier(name: self.name)
     let qualifiedName = prefix + structName
     let structs = assetSubfolders.folders
-      .map { $0.generatedImageStruct(at: externalAccessLevel, prefix: qualifiedName) }
+      .map { $0.generatedImageStruct(at: externalAccessLevel, prefix: qualifiedName, forceUnwrap: forceUnwrap) }
       .filter { !$0.isEmpty }
 
     let imageLets = groupedFunctions
@@ -142,14 +144,14 @@ private extension NamespacedAssetSubfolder {
       implements: [],
       typealiasses: [],
       properties: imageLets,
-      functions: groupedFunctions.uniques.map { imageFunction(for: $0, at: externalAccessLevel, prefix: qualifiedName) },
+      functions: groupedFunctions.uniques.map { imageFunction(for: $0, at: externalAccessLevel, prefix: qualifiedName, forceUnwrap: forceUnwrap) },
       structs: structs,
       classes: [],
       os: []
     )
   }
 
-  private func imageFunction(for name: String, at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier) -> Function {
+  private func imageFunction(for name: String, at externalAccessLevel: AccessLevel, prefix: SwiftIdentifier, forceUnwrap: Bool) -> Function {
     let structName = SwiftIdentifier(name: name)
     let qualifiedName = prefix + structName
 
@@ -169,8 +171,8 @@ private extension NamespacedAssetSubfolder {
         )
       ],
       doesThrow: false,
-      returnType: Type._UIImage.asOptional(),
-      body: "return UIKit.UIImage(resource: \(qualifiedName), compatibleWith: traitCollection)",
+      returnType: forceUnwrap ? Type._UIImage.asNonOptional() : Type._UIImage.asOptional(),
+      body: "return UIKit.UIImage(resource: \(qualifiedName), compatibleWith: traitCollection)\(forceUnwrap ? "!" : "")",
       os: ["iOS", "tvOS"]
     )
   }
